@@ -1,41 +1,32 @@
 import React from 'react';
-import { FEATURES } from '../constants';
-import { ScrollReveal } from './ScrollReveal';
+import { NEWS_UPDATES } from '../constants';
 
-export const Features: React.FC = () => {
+export const NewsView: React.FC = () => {
   return (
-    <section id="features" className="py-24 bg-slate-950 relative">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <ScrollReveal>
-            <div className="text-center max-w-3xl mx-auto mb-20">
-            <h2 className="text-indigo-400 font-semibold tracking-wide uppercase text-sm mb-3">Our Expertise</h2>
-            <h3 className="font-display text-3xl md:text-5xl font-bold text-white mb-6">
-                Engineered for Impact
-            </h3>
-            <p className="text-slate-400 text-lg">
-                We don't just write code. We architect solutions that drive growth, ensure security, and delight users at every touchpoint.
-            </p>
+    <div className="max-w-3xl mx-auto py-8">
+      <h2 className="font-display text-3xl font-bold text-white mb-12 text-center">System Updates</h2>
+      
+      <div className="space-y-8 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-slate-800 before:to-transparent">
+        {NEWS_UPDATES.map((item, index) => (
+          <div key={index} className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
+            
+            <div className="flex items-center justify-center w-10 h-10 rounded-full border border-slate-700 bg-slate-900 group-[.is-active]:border-indigo-500 group-[.is-active]:bg-indigo-900/20 text-slate-500 group-[.is-active]:text-indigo-400 shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2">
+              <div className="w-2.5 h-2.5 bg-current rounded-full"></div>
             </div>
-        </ScrollReveal>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {FEATURES.map((feature, index) => (
-            <ScrollReveal key={index} delay={index * 100} threshold={0.2}>
-              <div className="h-full p-8 rounded-2xl bg-slate-900/50 border border-slate-800 hover:border-indigo-500/50 hover:bg-slate-900 transition-all duration-300 group">
-                <div className="w-12 h-12 bg-indigo-900/30 rounded-lg flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                  <feature.icon className="h-6 w-6 text-indigo-400" />
-                </div>
-                <h4 className="text-xl font-bold text-white mb-3 group-hover:text-indigo-300 transition-colors">
-                  {feature.title}
-                </h4>
-                <p className="text-slate-400 leading-relaxed">
-                  {feature.description}
-                </p>
+            
+            <div className="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] p-6 rounded-xl border border-slate-800 bg-slate-900/40 hover:bg-slate-900/60 transition-colors">
+              <div className="flex items-center justify-between space-x-2 mb-1">
+                <div className="font-bold text-white">{item.title}</div>
+                <time className="font-mono text-xs text-indigo-400">{item.date}</time>
               </div>
-            </ScrollReveal>
-          ))}
-        </div>
+              <div className="text-slate-400 text-sm">
+                {item.content}
+              </div>
+            </div>
+            
+          </div>
+        ))}
       </div>
-    </section>
+    </div>
   );
 };

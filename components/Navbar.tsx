@@ -1,75 +1,60 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Menu, X, Terminal, Volume2, VolumeX, Bot } from 'lucide-react';
+import React, { useRef, useState, useEffect } from 'react';
+import { Terminal, Volume2, VolumeX, Bot, Sparkles, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from './Button';
-import { NAV_LINKS } from '../constants';
+import { PAGES } from '../constants';
 
 interface NavbarProps {
-  onTikoClick?: () => void;
+  activeTab: string;
+  onTabChange: (id: string) => void;
+  onTikoClick: () => void;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ onTikoClick }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
+export const Navbar: React.FC<NavbarProps> = ({ activeTab, onTabChange, onTikoClick }) => {
   const [isMuted, setIsMuted] = useState(true);
-  const [activeLink, setActiveLink] = useState('');
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  
+  // Create an infinite loop effect by duplicating the pages array
+  // We use 5 copies to ensure smooth scrolling in both directions from the center
+  const INFINITE_PAGES = [...PAGES, ...PAGES, ...PAGES, ...PAGES, ...PAGES];
+  
+  // Calculate the starting index (Middle set)
+  const START_INDEX = PAGES.length * 2; 
 
   useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 20);
-
-      // Active link detection logic
-      const sections = NAV_LINKS.map(link => link.href.substring(1));
-      let currentSection = '';
-
-      for (const section of sections) {
-        const element = document.getElementById(section);
-        if (element) {
-          const rect = element.getBoundingClientRect();
-          // Check if section is approximately in view (near top of viewport or taking up most of it)
-          if (rect.top <= 150 && rect.bottom >= 150) {
-            currentSection = section;
-            break; // Stop at the first visible section
-          }
-        }
-      }
-      setActiveLink(currentSection);
-    };
-
-    window.addEventListener('scroll', handleScroll);
-
-    // Initialize audio with a reliable URL from Archive.org
-    // Using a relaxing piano track
     audioRef.current = new Audio('https://ia802808.us.archive.org/3/items/RelaxingMusic/Relaxing%20Music.mp3');
     audioRef.current.loop = true;
     audioRef.current.volume = 0.2;
-    
-    // Add error listener
-    audioRef.current.addEventListener('error', (e) => {
-        console.warn("Audio failed to load", e);
-    });
-
     return () => {
-        window.removeEventListener('scroll', handleScroll);
-        if (audioRef.current) {
-            audioRef.current.pause();
-            audioRef.current = null;
-        }
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
     };
+  }, []);
+
+  // Initial centering scroll
+  useEffect(() => {
+    if (scrollContainerRef.current) {
+      const container = scrollContainerRef.current;
+      // Find the Home tab in the middle set (index 0 of the middle set)
+      const middleSetOffset = START_INDEX;
+      const targetIndex = middleSetOffset; // assuming Home is first in PAGES
+      
+      const targetTab = container.children[0].children[targetIndex] as HTMLElement;
+      
+      if (targetTab) {
+        // Calculate center position
+        const scrollLeft = targetTab.offsetLeft - (container.clientWidth / 2) + (targetTab.clientWidth / 2);
+        container.scrollTo({ left: scrollLeft, behavior: 'instant' });
+      }
+    }
   }, []);
 
   const toggleAudio = () => {
     if (audioRef.current) {
       if (isMuted) {
-        const playPromise = audioRef.current.play();
-        if (playPromise !== undefined) {
-          playPromise.then(() => {
-            setIsMuted(false);
-          }).catch(error => {
-            console.error("Audio playback failed:", error);
-            // Interactive fallback: sometimes browsers need a specific interaction event stack
-          });
-        }
+        audioRef.current.play().then(() => setIsMuted(false)).catch(console.error);
       } else {
         audioRef.current.pause();
         setIsMuted(true);
@@ -77,134 +62,102 @@ export const Navbar: React.FC<NavbarProps> = ({ onTikoClick }) => {
     }
   };
 
-  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
-    e.preventDefault();
-    const targetId = href.substring(1);
-    const element = document.getElementById(targetId);
+  const handleTabClick = (originalId: string, index: number) => {
+    onTabChange(originalId);
     
-    if (element) {
-      const offset = 100; // Height of navbar + buffer
-      const elementPosition = element.getBoundingClientRect().top;
-      const offsetPosition = elementPosition + window.pageYOffset - offset;
-
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: 'smooth'
-      });
-      
-      setIsOpen(false); // Close mobile menu if open
-      setActiveLink(targetId);
+    // Smooth scroll to the clicked item
+    if (scrollContainerRef.current) {
+      const container = scrollContainerRef.current;
+      const targetTab = container.children[0].children[index] as HTMLElement;
+      if (targetTab) {
+        const scrollLeft = targetTab.offsetLeft - (container.clientWidth / 2) + (targetTab.clientWidth / 2);
+        container.scrollTo({ left: scrollLeft, behavior: 'smooth' });
+      }
     }
   };
 
   return (
-    <nav 
-      className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
-        scrolled ? 'bg-slate-950/80 backdrop-blur-md border-b border-slate-800 shadow-lg' : 'bg-transparent'
-      }`}
-    >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-20">
-          
-          {/* Logo */}
-          <div 
-            className="flex-shrink-0 flex items-center gap-2 cursor-pointer group"
-            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+    <div className="fixed top-0 left-0 w-full z-50 transition-all duration-300">
+      
+      {/* Top Bar: Glassmorphism */}
+      <div className="h-16 px-4 flex items-center justify-between w-full bg-slate-950/70 backdrop-blur-xl border-b border-white/5 z-20 relative">
+        <div 
+            className="flex items-center gap-3 cursor-pointer group"
+            onClick={() => onTabChange('home')}
+        >
+          <div className="relative">
+            <div className="absolute inset-0 bg-indigo-500 blur-lg opacity-20 group-hover:opacity-40 transition-opacity"></div>
+            <div className="relative p-1.5 bg-slate-900 rounded border border-white/10 group-hover:border-indigo-500/50 transition-colors">
+              <Terminal className="h-5 w-5 text-indigo-400" />
+            </div>
+          </div>
+          <span className="font-display font-bold text-xl tracking-wide text-white group-hover:text-indigo-200 transition-colors">Codenyl</span>
+        </div>
+
+        <div className="flex items-center gap-4">
+          <button 
+            onClick={toggleAudio}
+            className={`p-2 rounded-full transition-all duration-300 hover:bg-white/5 ${isMuted ? 'text-slate-500' : 'text-indigo-400'}`}
           >
-            <div className="p-2 bg-indigo-600/20 rounded-lg group-hover:bg-indigo-600/40 transition-colors">
-                <Terminal className="h-6 w-6 text-indigo-400 group-hover:text-indigo-300" />
-            </div>
-            <span className="font-display font-bold text-2xl tracking-tight text-white">
-              Codenyl
-            </span>
-          </div>
-
-          {/* Desktop Menu */}
-          <div className="hidden md:block">
-            <div className="ml-10 flex items-baseline space-x-8">
-              {NAV_LINKS.map((link) => {
-                const isActive = activeLink === link.href.substring(1);
-                return (
-                  <a
-                    key={link.name}
-                    href={link.href}
-                    onClick={(e) => handleNavClick(e, link.href)}
-                    className={`relative px-3 py-2 rounded-md text-sm font-medium transition-all duration-300 ${
-                      isActive 
-                        ? 'text-white' 
-                        : 'text-slate-400 hover:text-indigo-300'
-                    }`}
-                  >
-                    {link.name}
-                    {isActive && (
-                      <span className="absolute bottom-0 left-0 w-full h-0.5 bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.8)] rounded-full animate-pulse" />
-                    )}
-                  </a>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Controls */}
-          <div className="hidden md:flex items-center gap-4">
-            <button 
-                onClick={toggleAudio}
-                className={`p-2 rounded-full transition-all duration-300 ${isMuted ? 'text-slate-400 hover:text-white' : 'text-indigo-400 bg-indigo-950/30 ring-1 ring-indigo-500/30'}`}
-                title={isMuted ? "Play relaxing sound" : "Mute sound"}
-            >
-                {isMuted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5 animate-pulse" />}
-            </button>
-            <Button size="sm" variant="outline" onClick={onTikoClick} className="flex items-center gap-2 border-indigo-500 text-indigo-300 hover:bg-indigo-500/10">
-                <Bot className="w-4 h-4" />
-                Tiko
-            </Button>
-          </div>
-
-          {/* Mobile menu button */}
-          <div className="flex md:hidden items-center gap-4">
-             <button 
-                onClick={toggleAudio}
-                className={`p-2 rounded-full transition-all duration-300 ${isMuted ? 'text-slate-400' : 'text-indigo-400'}`}
-            >
-                {isMuted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
-            </button>
-            <button
-              onClick={() => setIsOpen(!isOpen)}
-              className="inline-flex items-center justify-center p-2 rounded-md text-slate-400 hover:text-white hover:bg-slate-800 focus:outline-none"
-            >
-              {isOpen ? <X className="block h-6 w-6" /> : <Menu className="block h-6 w-6" />}
-            </button>
-          </div>
+            {isMuted ? <VolumeX className="h-5 w-5" /> : <div className="relative"><Volume2 className="h-5 w-5" /><span className="absolute -top-1 -right-1 w-2 h-2 bg-indigo-500 rounded-full animate-ping" /></div>}
+          </button>
+          
+          <Button 
+            size="sm" 
+            variant="ghost" 
+            onClick={onTikoClick} 
+            className="flex items-center gap-2 text-indigo-300 bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/20 rounded-full px-4"
+          >
+            <Bot className="w-4 h-4" />
+            <span className="hidden sm:inline font-medium">Ask Tiko</span>
+          </Button>
         </div>
       </div>
 
-      {/* Mobile Menu Dropdown */}
-      <div className={`md:hidden absolute w-full bg-slate-900/95 backdrop-blur-xl border-b border-slate-800 transition-all duration-300 ease-in-out origin-top ${isOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0 overflow-hidden'}`}>
-        <div className="px-4 pt-2 pb-6 space-y-2 sm:px-3 shadow-2xl">
-          {NAV_LINKS.map((link) => {
-             const isActive = activeLink === link.href.substring(1);
-             return (
-                <a
-                  key={link.name}
-                  href={link.href}
-                  onClick={(e) => handleNavClick(e, link.href)}
-                  className={`block px-3 py-3 rounded-md text-base font-medium transition-colors ${
-                    isActive 
-                    ? 'text-white bg-indigo-600/20 border-l-2 border-indigo-500 pl-2' 
-                    : 'text-slate-300 hover:text-white hover:bg-slate-800'
-                  }`}
+      {/* Infinite Carousel Tabs */}
+      <div className="h-14 relative bg-slate-950/80 backdrop-blur-xl border-b border-white/5 shadow-2xl">
+        {/* Gradient Fade Masks to create infinity illusion */}
+        <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-slate-950 via-slate-950/80 to-transparent z-10 pointer-events-none"></div>
+        <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-slate-950 via-slate-950/80 to-transparent z-10 pointer-events-none"></div>
+
+        <div 
+          ref={scrollContainerRef}
+          className="h-full overflow-x-auto scrollbar-hide flex items-center w-full"
+          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+        >
+          <div className="flex items-center gap-2 px-[50vw]"> 
+             {/* Padding helps initial center alignment before JS kicks in */}
+            {INFINITE_PAGES.map((page, index) => {
+              const isActive = activeTab === page.id;
+              
+              return (
+                <button
+                  key={`${page.id}-${index}`}
+                  onClick={() => handleTabClick(page.id, index)}
+                  className={`
+                    relative flex-shrink-0 px-6 py-2 rounded-full text-sm font-medium transition-all duration-500
+                    ${isActive 
+                      ? 'text-white' 
+                      : 'text-slate-500 hover:text-slate-300'
+                    }
+                  `}
                 >
-                  {link.name}
-                </a>
-             );
-          })}
-          <div className="pt-4 border-t border-slate-800 mt-2">
-            <Button fullWidth variant="primary" onClick={() => { setIsOpen(false); onTikoClick && onTikoClick(); }}>
-                Chat with Tiko
-            </Button>
+                  {isActive && (
+                    <div className="absolute inset-0 bg-gradient-to-r from-indigo-600/20 to-purple-600/20 rounded-full border border-indigo-500/30 shadow-[0_0_15px_rgba(99,102,241,0.3)] backdrop-blur-sm animate-pulse-slow"></div>
+                  )}
+                  <span className="relative z-10 flex items-center gap-2">
+                    {page.label}
+                    {isActive && <Sparkles className="w-3 h-3 text-indigo-400 animate-spin-slow" />}
+                  </span>
+                </button>
+              );
+            })}
           </div>
         </div>
+        
+        {/* Progress Line Indicator */}
+        <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-indigo-500/50 to-transparent opacity-50"></div>
       </div>
-    </nav>
+    </div>
   );
 };

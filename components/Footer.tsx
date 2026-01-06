@@ -1,98 +1,59 @@
 import React from 'react';
-import { Terminal } from 'lucide-react';
+import { Terminal, Github, Youtube } from 'lucide-react';
 import { SOCIAL_LINKS } from '../constants';
 
-export const Footer: React.FC = () => {
+interface FooterProps {
+  activeTab?: string;
+}
+
+export const Footer: React.FC<FooterProps> = ({ activeTab }) => {
   return (
-    <footer className="bg-slate-950 border-t border-slate-900 pt-16 pb-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
-          
-          <div className="col-span-1 md:col-span-1">
-            <div className="flex items-center gap-2 mb-4">
-              <Terminal className="h-6 w-6 text-indigo-500" />
-              <span className="font-display font-bold text-xl text-white">Codenyl</span>
+    <footer className="relative bg-slate-950 border-t border-slate-900/50 pt-20 pb-12 overflow-hidden">
+      {/* Background glow */}
+      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[800px] h-[300px] bg-gradient-to-t from-indigo-900/20 to-transparent blur-[80px] pointer-events-none"></div>
+
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col md:flex-row justify-between items-center gap-10">
+            
+            <div className="text-center md:text-left">
+                <div className="flex items-center justify-center md:justify-start gap-3 mb-3">
+                    <div className="p-1.5 bg-indigo-500/10 rounded border border-indigo-500/20">
+                      <Terminal className="h-5 w-5 text-indigo-400" />
+                    </div>
+                    <span className="font-display font-bold text-2xl text-white tracking-wide">Codenyl</span>
+                </div>
+                <p className="font-mono text-xs text-slate-500 tracking-wider pl-1">
+                    SYSTEM_ID: CDN-ORIGIN // V 2.4.0
+                </p>
             </div>
-            <p className="text-slate-400 text-sm leading-relaxed">
-              Crafting digital experiences that merge art with engineering. We build the future, one line of code at a time.
-            </p>
-          </div>
 
-          <div>
-            <h4 className="font-bold text-white mb-4">Product</h4>
-            <ul className="space-y-3">
-              <li>
+            <div className="flex gap-10">
+            {SOCIAL_LINKS.map(link => (
                 <a 
-                  href="https://mathnova.netlify.app" 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
-                  className="font-medium text-cyan-400 hover:text-cyan-300 hover:underline transition-all"
+                key={link.name} 
+                href={link.href} 
+                className="group flex items-center gap-2 text-slate-500 hover:text-white transition-all font-medium text-sm"
                 >
-                  MathBot
+                <span className="relative">
+                  {link.name}
+                  <span className="absolute -bottom-1 left-0 w-0 h-px bg-indigo-500 transition-all group-hover:w-full"></span>
+                </span>
                 </a>
-              </li>
-              <li>
-                <a 
-                  href="https://chefmother.netlify.app" 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
-                  className="font-medium text-[#E34234] hover:text-[#ff5c4d] hover:underline transition-all"
-                >
-                  FoodHub
-                </a>
-              </li>
-              <li>
-                <a 
-                  href="#" 
-                  className="font-medium text-[#39FF14] hover:text-[#6aff4d] hover:underline transition-all shadow-neongreen"
-                >
-                  Games21
-                </a>
-              </li>
-              <li>
-                <a 
-                  href="https://sibo-beta.netlify.app" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="font-bold sibo-text hover:opacity-80 transition-opacity"
-                >
-                  Sibo
-                </a>
-              </li>
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="font-bold text-white mb-4">Legal</h4>
-            <ul className="space-y-2">
-              <li><a href="#" className="text-slate-400 hover:text-indigo-400 text-sm transition-colors">Privacy Policy</a></li>
-              <li><a href="#" className="text-slate-400 hover:text-indigo-400 text-sm transition-colors">Terms of Service</a></li>
-              <li><a href="#" className="text-slate-400 hover:text-indigo-400 text-sm transition-colors">Cookie Policy</a></li>
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="font-bold text-white mb-4">Connect</h4>
-            <ul className="space-y-2">
-              {SOCIAL_LINKS.map(link => (
-                <li key={link.name}>
-                  <a href={link.href} className="text-slate-400 hover:text-indigo-400 text-sm transition-colors">
-                    {link.name}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-
+            ))}
+            </div>
         </div>
-
-        <div className="border-t border-slate-900 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-slate-500 text-sm">
-            © {new Date().getFullYear()} Codenyl Inc. All rights reserved.
-          </p>
-          <div className="flex gap-4">
-             <span className="text-slate-600 text-xs">Designed in React & Tailwind</span>
-          </div>
+        
+        <div className="mt-16 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-slate-600">
+             <div className="flex items-center gap-2 md:gap-4 flex-wrap justify-center">
+               <p>© {new Date().getFullYear()} Codenyl System.</p>
+               {activeTab !== 'home' && (
+                 <>
+                   <span className="hidden md:inline text-slate-800">|</span>
+                   <span className="text-indigo-400/50 font-medium">Built by Aaradhy Mishra</span>
+                 </>
+               )}
+             </div>
+             <p className="font-mono opacity-50">NO HYPE. PURE UTILITY.</p>
         </div>
       </div>
     </footer>
