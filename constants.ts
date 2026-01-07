@@ -1,16 +1,17 @@
 import { Terminal, Github, Youtube, MessageCircle, Zap, Shield, Globe, Cpu, Code, Layout } from 'lucide-react';
 
 export const PAGES = [
-  { id: 'home', label: 'Home' },
-  { id: 'origin', label: 'Origin' },
-  { id: 'products', label: 'Products' },
-  { id: 'creator', label: 'Creator' },
-  { id: 'philosophy', label: 'Philosophy' },
-  { id: 'policies', label: 'Policies' },
-  { id: 'membership', label: 'Membership' },
-  { id: 'news', label: 'News' },
-  { id: 'signup', label: 'Signup' },
-  { id: 'login', label: 'Login' },
+  { id: 'home', label: 'Home', path: '/' },
+  { id: 'origin', label: 'Origin', path: '/origin' },
+  { id: 'products', label: 'Products', path: '/products' },
+  { id: 'faq', label: 'FAQs', path: '/faq' },
+  { id: 'creator', label: 'Creator', path: '/creator' },
+  { id: 'philosophy', label: 'Philosophy', path: '/philosophy' },
+  { id: 'policies', label: 'Policies', path: '/policies' },
+  { id: 'membership', label: 'Membership', path: '/membership' },
+  { id: 'news', label: 'News', path: '/news' },
+  { id: 'signup', label: 'Signup', path: '/auth/signup' },
+  { id: 'login', label: 'Login', path: '/auth/login' },
 ];
 
 export const SOCIAL_LINKS = [
@@ -133,6 +134,164 @@ export const PAGE_TEXT = {
     ]
   }
 };
+
+export const FAQ_SECTIONS = [
+  {
+    title: "About Codenyl",
+    items: [
+      {
+        q: "What exactly is Codenyl?",
+        a: "Codenyl is a system that connects multiple tools, apps, and experiments under one account. It is not a single app and not a social platform. Each tool does one specific thing, but all of them live under one system."
+      },
+      {
+        q: "Is Codenyl a company or a project?",
+        a: "Codenyl is a project-based system built and maintained by a student developer. It focuses on building tools that work rather than building hype."
+      },
+      {
+        q: "Why does Codenyl have so many different tools?",
+        a: "Because problems are different. Some tools are serious, some are playful, and some exist to experiment with ideas. Codenyl does not force everything into one app."
+      }
+    ]
+  },
+  {
+    title: "Accounts & Store",
+    items: [
+      {
+        q: "What is the Codenyl Store?",
+        a: "The Codenyl Store is the central place where all Codenyl apps live. It is where users browse, install, and manage tools."
+      },
+      {
+        q: "Can I browse the Store without an account?",
+        a: "Yes. You can browse apps, read descriptions, and explore without logging in."
+      },
+      {
+        q: "Why do I need an account to install apps?",
+        a: "Installing and using apps changes state. An account ensures consistency, security, and a shared system across tools."
+      },
+      {
+        q: "Do individual apps have their own login?",
+        a: "No. Login happens only once through Codenyl. Apps never ask for passwords or Google login."
+      },
+      {
+        q: "Why does Codenyl work this way?",
+        a: "This avoids multiple logins, broken sessions, and scattered identities. Everything stays under one system."
+      }
+    ]
+  },
+  {
+    title: "Apps & Usage",
+    items: [
+      {
+        q: "Can I use any app without connecting to Codenyl?",
+        a: "No. Browsing is free. Using apps requires connection. The only exception is free games on the Games21 website."
+      },
+      {
+        q: "Can I download apps and share them?",
+        a: "Apps are tied to the Codenyl system. Sharing downloaded apps without access will not work."
+      },
+      {
+        q: "Are apps web-based or real apps?",
+        a: "Some tools are web-based. Some are real Android or Windows apps. Not everything will have a web version."
+      }
+    ]
+  },
+  {
+    title: "Free vs Premium",
+    items: [
+      {
+        q: "Is everything on Codenyl free?",
+        a: "No. Some tools are free. Some tools are premium. Premium tools are fully locked and do not offer freemium access."
+      },
+      {
+        q: "What does free access usually include?",
+        a: "Free access allows exploration, limited usage, or specific tools. It may include ads in allowed places later."
+      },
+      {
+        q: "What does premium access mean?",
+        a: "Premium access unlocks full functionality of specific tools or the entire system, depending on the type of access."
+      }
+    ]
+  },
+  {
+    title: "GS21 & G21",
+    items: [
+      {
+        q: "What is G21?",
+        a: "G21 is related only to Games21. It is used inside Games21 to unlock premium games or features."
+      },
+      {
+        q: "What is GS21?",
+        a: "GS21 is a system-wide access code system. GS21 can unlock things across Codenyl, not just Games21."
+      },
+      {
+        q: "What is the difference between G21 and GS21?",
+        a: "G21 works only inside Games21. GS21 works across the Codenyl ecosystem."
+      },
+      {
+        q: "What are GS21 codes?",
+        a: "GS21 codes are controlled access keys. They can unlock time-based membership, specific apps, or system-wide access."
+      },
+      {
+        q: "Are GS21 codes random coupons?",
+        a: "No. They are part of the access system. They are intentional, limited, and backend-controlled."
+      },
+      {
+        q: "How can someone get GS21 codes?",
+        a: "GS21 codes may be obtained through gameplay achievements, special events, direct grants, support or membership-related access, or internal distribution. Not all users will get them."
+      },
+      {
+        q: "Are GS21 codes mandatory?",
+        a: "No. They are optional. Many users will never use a GS21 code."
+      }
+    ]
+  },
+  {
+    title: "Membership & Support",
+    items: [
+      {
+        q: "What is Codenyl Membership?",
+        a: "Membership unlocks access to all Codenyl tools and apps."
+      },
+      {
+        q: "What is Supportership?",
+        a: "Supportership is a way to directly support development. It includes closer access, early updates, recognition, and special tools."
+      },
+      {
+        q: "Is support required to use Codenyl?",
+        a: "No. Support is optional."
+      },
+      {
+        q: "Are payments reversible?",
+        a: "No. All payments are irreversible. This is clearly stated before any payment."
+      }
+    ]
+  },
+  {
+    title: "Data, Trust & Limits",
+    items: [
+      {
+        q: "What data does Codenyl collect?",
+        a: "Basic account and preference data. This helps improve recommendations and experience."
+      },
+      {
+        q: "Does Codenyl sell data?",
+        a: "No. Data is not sold."
+      },
+      {
+        q: "Is Codenyl using AI to spy on users?",
+        a: "No. AI tools exist only where explicitly stated. No hidden tracking."
+      },
+      {
+        q: "Can things change over time?",
+        a: "Yes. Codenyl is evolving. Some tools may change, improve, or be replaced."
+      },
+      {
+        q: "What should users NOT assume?",
+        a: "Users should not assume: everything is free forever, all tools will exist forever, numbers are inflated, or features are promised on a timeline. Codenyl values honesty over promises."
+      }
+    ]
+  }
+];
 
 export interface KnowledgeItem {
   keywords: string[];

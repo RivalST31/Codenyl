@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
 import { Tiko } from './components/Tiko';
@@ -8,18 +9,23 @@ import { TextView } from './components/ReadingSection';
 import { MembershipView } from './components/Stats';
 import { NewsView } from './components/Features';
 import { AuthView } from './components/CTA';
-import { PAGE_TEXT } from './constants';
+import { FAQView } from './components/FAQ';
+import { PAGE_TEXT, PAGES } from './constants';
 
 const App: React.FC = () => {
-  const [activeTab, setActiveTab] = useState('home');
+  const location = useLocation();
+  const navigate = useNavigate();
   const [showTiko, setShowTiko] = useState(false);
   const [user, setUser] = useState<{name: string} | null>(null);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [modalMessage, setModalMessage] = useState('');
 
+  // Derive active tab from current path for the Navbar
+  const activeTab = PAGES.find(p => p.path === location.pathname)?.id || 'home';
+
   const handleLogin = (username: string) => {
     setUser({ name: username });
-    setActiveTab('products'); // Redirect to products or store
+    navigate('/products'); // Redirect to products/store
   };
 
   const handleProductClick = () => {
@@ -32,46 +38,44 @@ const App: React.FC = () => {
     }
   };
 
-  const renderContent = () => {
-    switch(activeTab) {
-      case 'home':
-        return <HomeView onNavigate={setActiveTab} />;
-      case 'origin':
-        return <TextView title={PAGE_TEXT.origin.title} content={PAGE_TEXT.origin.content} />;
-      case 'products':
-        return <ProductsView onProductClick={handleProductClick} />;
-      case 'creator':
-        return <TextView title={PAGE_TEXT.creator.title} content={PAGE_TEXT.creator.content} />;
-      case 'philosophy':
-        return <TextView title={PAGE_TEXT.philosophy.title} content={PAGE_TEXT.philosophy.content} />;
-      case 'policies':
-        return <TextView title={PAGE_TEXT.policies.title} content={PAGE_TEXT.policies.content} />;
-      case 'membership':
-        return <MembershipView onSubscribe={() => setActiveTab('signup')} />;
-      case 'news':
-        return <NewsView />;
-      case 'signup':
-        return <AuthView mode="signup" onLogin={handleLogin} />;
-      case 'login':
-        return <AuthView mode="login" onLogin={handleLogin} />;
-      default:
-        return <HomeView onNavigate={setActiveTab} />;
-    }
+  // Helper to map IDs to paths for internal navigation
+  const navigateToId = (id: string) => {
+    const page = PAGES.find(p => p.id === id);
+    if (page) navigate(page.path);
   };
 
-  // Reset scroll on tab change
+  // Reset scroll on path change
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [activeTab]);
+  }, [location.pathname]);
 
   return (
     <div className="bg-slate-950 min-h-screen text-slate-100 font-sans selection:bg-indigo-500/30 selection:text-indigo-200">
-      <Navbar activeTab={activeTab} onTabChange={setActiveTab} onTikoClick={() => setShowTiko(true)} />
+      <Navbar 
+        activeTab={activeTab} 
+        onTabChange={navigateToId} 
+        onTikoClick={() => setShowTiko(true)} 
+      />
+      
       <Tiko isOpen={showTiko} onClose={() => setShowTiko(false)} />
       
       <main className="pt-32 pb-20 min-h-[calc(100vh-200px)] animate-fade-in">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            {renderContent()}
+            <Routes>
+              <Route path="/" element={<HomeView onNavigate={navigateToId} />} />
+              <Route path="/origin" element={<TextView title={PAGE_TEXT.origin.title} content={PAGE_TEXT.origin.content} />} />
+              <Route path="/products" element={<ProductsView onProductClick={handleProductClick} />} />
+              <Route path="/faq" element={<FAQView />} />
+              <Route path="/creator" element={<TextView title={PAGE_TEXT.creator.title} content={PAGE_TEXT.creator.content} />} />
+              <Route path="/philosophy" element={<TextView title={PAGE_TEXT.philosophy.title} content={PAGE_TEXT.philosophy.content} />} />
+              <Route path="/policies" element={<TextView title={PAGE_TEXT.policies.title} content={PAGE_TEXT.policies.content} />} />
+              <Route path="/membership" element={<MembershipView onSubscribe={() => navigate('/auth/signup')} />} />
+              <Route path="/news" element={<NewsView />} />
+              <Route path="/auth/signup" element={<AuthView mode="signup" onLogin={handleLogin} />} />
+              <Route path="/auth/login" element={<AuthView mode="login" onLogin={handleLogin} />} />
+              {/* Fallback */}
+              <Route path="*" element={<HomeView onNavigate={navigateToId} />} />
+            </Routes>
         </div>
       </main>
 
@@ -89,7 +93,7 @@ const App: React.FC = () => {
                 Cancel
               </button>
               <button 
-                onClick={() => { setShowLoginModal(false); setActiveTab('signup'); }}
+                onClick={() => { setShowLoginModal(false); navigate('/auth/signup'); }}
                 className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-500 transition-colors font-medium"
               >
                 Connect

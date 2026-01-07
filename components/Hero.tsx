@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Button } from './Button';
 import { Network, Activity, Cpu, ArrowRight, Database, Globe } from 'lucide-react';
 
@@ -6,16 +6,107 @@ interface HomeViewProps {
   onNavigate: (page: string) => void;
 }
 
+const CodeRain: React.FC = () => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    let width = window.innerWidth;
+    let height = window.innerHeight;
+    canvas.width = width;
+    canvas.height = height;
+
+    const chars = '01{}<>?[]!@#$%^&*()_+=CODE';
+    const fontSize = 14;
+    // Use let for columns so we can update it on resize
+    let columns = Math.ceil(width / fontSize);
+    const drops: number[] = [];
+
+    for (let i = 0; i < columns; i++) {
+      drops[i] = Math.random() * -100; // Start above screen randomly
+    }
+
+    const draw = () => {
+      // Trail effect
+      ctx.fillStyle = 'rgba(2, 6, 23, 0.05)'; // Background color (slate-950) with very low opacity
+      ctx.fillRect(0, 0, width, height);
+
+      ctx.font = `${fontSize}px 'JetBrains Mono'`;
+
+      for (let i = 0; i < drops.length; i++) {
+        const text = chars[Math.floor(Math.random() * chars.length)];
+        
+        // Gradient color effect based on vertical position
+        const y = drops[i] * fontSize;
+        const opacity = Math.random() * 0.5 + 0.1; // Random opacity
+        
+        // Randomly select color between indigo and purple
+        ctx.fillStyle = Math.random() > 0.5 
+          ? `rgba(99, 102, 241, ${opacity})`  // Indigo
+          : `rgba(168, 85, 247, ${opacity})`; // Purple
+
+        ctx.fillText(text, i * fontSize, y);
+
+        if (y > height && Math.random() > 0.975) {
+          drops[i] = 0;
+        }
+
+        drops[i]++;
+      }
+    };
+
+    const interval = setInterval(draw, 33);
+
+    const handleResize = () => {
+      width = window.innerWidth;
+      height = window.innerHeight;
+      canvas.width = width;
+      canvas.height = height;
+      
+      // Recalculate columns and fill new drops if width increased
+      const newColumns = Math.ceil(width / fontSize);
+      if (newColumns > columns) {
+        for (let i = columns; i < newColumns; i++) {
+            drops[i] = Math.random() * -100;
+        }
+      }
+      columns = newColumns;
+    };
+
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
+
+  return (
+    <canvas 
+      ref={canvasRef} 
+      className="absolute inset-0 w-full h-full opacity-30 pointer-events-none mix-blend-screen"
+    />
+  );
+};
+
 export const HomeView: React.FC<HomeViewProps> = ({ onNavigate }) => {
   return (
-    <div className="relative min-h-[75vh] flex flex-col items-center justify-center text-center py-20 overflow-visible">
+    <div className="relative min-h-[75vh] flex flex-col items-center justify-center text-center py-20 overflow-hidden">
       
-      {/* 3D-like Glowing Orbs (CSS animated) */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-indigo-600/20 rounded-full blur-[100px] mix-blend-screen animate-blob"></div>
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-purple-600/20 rounded-full blur-[80px] mix-blend-screen animate-blob animation-delay-2000 ml-20 -mt-20"></div>
-      
-      {/* Grid Overlay */}
-      <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 pointer-events-none"></div>
+      {/* Background Effects */}
+      <div className="absolute inset-0 z-0">
+          <CodeRain />
+          {/* 3D-like Glowing Orbs (CSS animated) - keeping these for depth */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-indigo-600/10 rounded-full blur-[100px] mix-blend-screen animate-blob"></div>
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-purple-600/10 rounded-full blur-[80px] mix-blend-screen animate-blob animation-delay-2000 ml-20 -mt-20"></div>
+          {/* Grid Overlay */}
+          <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 pointer-events-none"></div>
+      </div>
 
       <div className="relative z-10 max-w-5xl px-4 flex flex-col items-center">
         
